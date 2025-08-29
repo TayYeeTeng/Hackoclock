@@ -1,0 +1,168 @@
+# tiktok_reward_dashboard.py
+import streamlit as st
+import pandas as pd
+
+# -------------------------------
+# Mock Video Data (TikTok Metrics)
+# -------------------------------
+videos = pd.DataFrame([
+    {"title": "Funny Cats Compilation", "views": 120_000, "likes": 55_000, "shares": 120, 
+     "watch_time": 800, "comments": 150, "gifts": 20, "creator_age": 22, "ip": "192.168.1.1"},
+    {"title": "Live Cooking Show", "views": 450_000, "likes": 120_000, "shares": 600, 
+     "watch_time": 3500, "comments": 2000, "gifts": 150, "creator_age": 17, "ip": "192.168.1.2"},
+    {"title": "Travel Vlog", "views": 520_000, "likes": 250_000, "shares": 1500, 
+     "watch_time": 5000, "comments": 6000, "gifts": 1000, "creator_age": 25, "ip": "192.168.1.3"}
+])
+
+# -------------------------------
+# Helper Functions
+# -------------------------------
+def calculate_credits(video):
+    credits = {}
+    
+    # Views
+    v = video["views"]
+    if 50_000 <= v < 100_000: credits["views"] = 1
+    elif 100_000 <= v < 200_000: credits["views"] = 2
+    elif 200_000 <= v < 400_000: credits["views"] = 3
+    elif 400_000 <= v < 500_000: credits["views"] = 4
+    elif v >= 500_000: credits["views"] = 5
+    
+    # Likes
+    l = video["likes"]
+    if 10_000 <= l < 20_000: credits["likes"] = 1
+    elif 20_000 <= l < 50_000: credits["likes"] = 2
+    elif 50_000 <= l < 100_000: credits["likes"] = 3
+    elif 100_000 <= l < 200_000: credits["likes"] = 4
+    elif l >= 200_000: credits["likes"] = 5
+    
+    # Shares
+    s = video["shares"]
+    if 10 <= s < 50: credits["shares"] = 1
+    elif 50 <= s < 100: credits["shares"] = 2
+    elif 100 <= s < 500: credits["shares"] = 3
+    elif 500 <= s < 1000: credits["shares"] = 4
+    elif s >= 1000: credits["shares"] = 5
+    
+    # Watch Time (Retention)
+    r = video["watch_time"]
+    if 20 <= r < 100: credits["retention"] = 1
+    elif 100 <= r < 300: credits["retention"] = 2
+    elif 300 <= r < 1000: credits["retention"] = 3
+    elif 1000 <= r < 5000: credits["retention"] = 4
+    elif r >= 5000: credits["retention"] = 5
+    
+    # Comments (positive unique)
+    c = video["comments"]
+    if 20 <= c < 100: credits["comments"] = 1
+    elif 100 <= c < 300: credits["comments"] = 2
+    elif 300 <= c < 1000: credits["comments"] = 3
+    elif 1000 <= c < 5000: credits["comments"] = 4
+    elif c >= 5000: credits["comments"] = 5
+    
+    # Total credits
+    total = sum(credits.values())
+    
+    # Bonus
+    if total > 40:
+        credits["bonus"] = 10
+        total += 10
+    else:
+        credits["bonus"] = 0
+        
+    credits["total"] = total
+    return credits
+
+def reward_tier(total_credits):
+    if total_credits >= 70:
+        return "E-wallet $5 + Exposure 20 min"
+    elif total_credits >= 40:
+        return "Exposure 10 min on FYP"
+    else:
+        return "No reward / low exposure"
+
+def check_fraud(video):
+    alerts = []
+    # Age threshold
+    if video["creator_age"] < 18:
+        alerts.append("Below age threshold")
+    # Gifts spike
+    if video["gifts"] > 500:
+        alerts.append("High gift spike")
+    # Bot-like patterns
+    if video["views"] > 1000 and video["comments"] == 0:
+        alerts.append("Bot-like engagement")
+    # Multiple accounts could be flagged if IP repeats
+    # For simplicity, not implemented here
+    return ", ".join(alerts) if alerts else "None"
+
+# Apply functions
+videos["credits"] = videos.apply(calculate_credits, axis=1)
+videos["reward"] = videos["credits"].apply(lambda x: reward_tier(x["total"]))
+videos["fraud_alert"] = videos.apply(check_fraud, axis=1)
+
+# -------------------------------
+# Streamlit Layout
+# -------------------------------
+st.set_page_config(page_title="TikTok Reward Dashboard", layout="wide")
+st.title("TikTok Creator Reward Dashboard")
+
+# Custom CSS for TikTok style
+st.markdown("""
+<style>
+body { background-color: #010101; color: white; }
+.stButton>button { font-weight: bold; color: black; }
+.stButton>button:hover { background-color: #FE2C55; color: white; }
+</style>
+""", unsafe_allow_html=True)
+
+# -------------------------------
+# Top Tab Buttons
+# -------------------------------
+tab_selected = st.session_state.get("tab", "overview")
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Overview & Goals"):
+        st.session_state["tab"] = "overview"
+with col2:
+    if st.button("Videos & Rewards"):
+        st.session_state["tab"] = "videos"
+tab_selected = st.session_state.get("tab", "overview")
+
+# -------------------------------
+# Overview Tab
+# -------------------------------
+if tab_selected == "overview":
+    st.header("Overview & Goals")
+    
+    total_points = sum([v["total"] for v in videos["credits"]])
+    st.metric("Total Points Across Videos", total_points)
+    
+    st.subheader("Bonus Points & Achievements")
+    for index, row in videos.iterrows():
+        st.write(f"{row['title']}: +{row['credits']['bonus']} bonus points")
+    
+    st.subheader("Targets & Progress")
+    # Mock progress bars
+    st.write("Views Target")
+    st.progress(min(videos["views"].sum()/1_500_000,1.0))
+    st.write("Gifts Target")
+    st.progress(min(videos["gifts"].sum()/1_500,1.0))
+    st.write("Engagement Target")
+    st.progress(min(videos["comments"].sum()/7_000,1.0))
+
+# -------------------------------
+# Videos & Rewards Tab
+# -------------------------------
+if tab_selected == "videos":
+    st.header("Videos & Rewards")
+    
+    for index, row in videos.iterrows():
+        with st.expander(f"{row['title']}"):
+            st.write(f"**Content Credits:** {row['credits']['total']}")
+            st.write("**Credit Breakdown:**")
+            for k,v in row['credits'].items():
+                if k != "total":
+                    st.write(f"- {k.capitalize()}: {v}")
+            st.write(f"**Reward Tier:** {row['reward']}")
+            st.write(f"**Fraud / Safety Alert:** {row['fraud_alert']}")
