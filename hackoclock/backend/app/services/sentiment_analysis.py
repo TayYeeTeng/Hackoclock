@@ -68,7 +68,7 @@ def main():
                     {"sentiment": score}
                 ).eq("video_id", vid_name[:-4]).execute()
 
-                print(f"Updated sentiment for video_id={vid_name[:-4]}: {update_resp['sentiment']}")
+                print(f"Updated sentiment for video_id={vid_name[:-4]}")
 
             else:
                 print("Could not extract score from Gemini response.")
