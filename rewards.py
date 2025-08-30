@@ -157,14 +157,13 @@
 # st.markdown('</div>', unsafe_allow_html=True)
 
 
-
-
 # NEW CODE
 import os
 import streamlit as st
 from supabase import create_client, Client
 from dotenv import load_dotenv
 from datetime import datetime
+from streamlit_autorefresh import st_autorefresh
 
 # --- LOAD ENV VARIABLES ---
 load_dotenv()
@@ -179,13 +178,22 @@ def get_creator_points():
     response = supabase.table("creators").select("total_points").eq("creator_id", creator_id).execute()
     return response.data[0]["total_points"] if response.data else 0
 
-total_points = get_creator_points()
 
-# --- REWARDS LIST ---
+total_points = get_creator_points()
+st_autorefresh(interval=5000, key="refresh")
+# --- FETCH REWARDS ---
+
+def get_rewards():
+    response = supabase.table("shop").select("*").execute()
+    rewards = response.data[0]
+    return rewards
+
+# rewards = get_rewards()
 rewards = [
-    {"id": 1, "title": "TikTok Merch", "cost": 200, "icon": "🎁"},
-    {"id": 2, "title": "Marketing Credits", "cost": 50, "icon": "📢"},
-    {"id": 3, "title": "Cash Bonus", "cost": 10, "icon": "💸"},
+    {"id": 1, "title": "Bump exposure on FYP for 30 minutes", "cost": 200, "icon": "📢"},
+    {"id": 2, "title": "Bump exposure on FYP for 120 minutes", "cost": 790, "icon": "📢"},
+    {"id": 3, "title": "$1 Cash (Transferred to registered bank)", "cost": 150, "icon": "💸"},
+    {"id": 4, "title": "$5 Cash (Transferred to registered bank)", "cost": 730, "icon": "💸"}
 ]
 
 # --- FETCH TRANSACTIONS ---
@@ -204,7 +212,8 @@ def redeem_reward(reward_id, reward_title, reward_cost):
     try:
         if total_points >= reward_cost:
             total_points -= reward_cost
-            supabase.table("creators").update({"total_points": total_points}).eq("creator_id", creator_id).execute()
+            print(total_points)
+            supabase.table("creators").update({"total_points": int(total_points)}).eq("creator_id", str(creator_id)).execute()
             supabase.table("redemptions").insert({
                 "creator_id": creator_id,
                 "reward_id": reward_id,
@@ -215,6 +224,7 @@ def redeem_reward(reward_id, reward_title, reward_cost):
             st.success(f"Successfully redeemed {reward_title}!")
         else:
             st.error(f"Not enough points to redeem {reward_title}.")
+
     except Exception as e:
         st.error(f"Unable to redeem {reward_title}.")
         print(f"Error redeeming reward: {e}")
