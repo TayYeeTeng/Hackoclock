@@ -40,7 +40,6 @@ async def get_videos(videos):
                 # Fetch stats
                 video_info = await video.info()  # is HTML request, so avoid using this too much
                 stats = video_info['stats']
-                # print(video_info)
 
                 # Calculations
                 views = int(stats['playCount'])
