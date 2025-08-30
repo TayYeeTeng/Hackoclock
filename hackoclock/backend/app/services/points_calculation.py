@@ -5,6 +5,7 @@ from supabase import create_client, Client
 import requests
 import tempfile
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
 load_dotenv()
 
@@ -30,13 +31,16 @@ cols = ["views","likes","shares","comments","bookmarks","engagement_rate","senti
 for col in cols:
     mean = df[col].mean()
     std = df[col].std(ddof=0)
-    df[col+"_z"] = (df[col]-mean) / std if std > 0 else 0
+    z_score = (df[col]-mean) / std if std > 0 else 0
+    scaler = MinMaxScaler()
+    df[col+"_scaled"] = scaler.fit_transform(z_score.values.reshape(-1, 1))
 
 # Get all the new Z-score column names
-z_cols = [col+"_z" for col in cols]
+scaled_cols = [col+"_scaled" for col in cols]
+
 
 # Sum across the Z-score columns row-wise
-df["video_points"] = df[z_cols].sum(axis=1)
+df["video_points"] = df[scaled_cols].sum(axis=1)
 
 print(df["video_points"]) #for checking
 
