@@ -41,122 +41,155 @@ st.markdown(
     """
     <style>
     /* Hide Streamlit menu, header, and footer */
-    header, footer, #MainMenu { 
-        visibility: hidden; 
-        height: 0px; 
-    }
+header, footer, #MainMenu { 
+    visibility: hidden; 
+    height: 0px; 
+}
 
-    /* Remove top padding of main content */
-    .block-container {
-        padding-top: 0rem;
-        padding-bottom: 0rem;
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
+/* Remove top padding of main content */
+.block-container {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
 
-    /* Set full app background */
-    .stApp {
-        background-color: #000;
-        color: #fff;
-    }
-    .reward-page {
-      min-height: 100vh;
-      background-color: #000;
-      color: #fff;
-      padding: 24px;
-      font-family: Arial, sans-serif;
-      margin-top: -1000px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-    .title {
-      color: #ec4899;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .profile {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .balance-card {
-      background: linear-gradient(to right, #ec4899, #8b5cf6);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .small-text { font-size: 14px; }
-    .large-text { font-size: 32px; font-weight: bold; }
-    .balance-buttons { display: flex; gap: 12px; }
-    .btn {
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-    }
-    .btn-light { background: #fff; color: #000; }
-    .btn-dark { background: #000; border: 1px solid #fff; color: #fff; }
-    .btn-pink { background: #ec4899; color: #fff; width: 100%; }
-    .section-title {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 16px;
-    }
-    .rewards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      margin-bottom: 40px;
-    }
-    .reward-card {
-      background-color: #0f0f1f;
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-    }
-    .reward-icon { font-size: 40px; margin-bottom: 12px; }
-    .reward-title { font-size: 18px; font-weight: bold; }
-    .reward-cost { color: #aaa; margin-bottom: 12px; }
-    .transactions {
-      background-color: #0f0f1f;
-      padding: 20px;
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .transaction {
-      display: flex;
-      justify-content: flex-start; /* align items to the left */
-      border-bottom: 1px solid #333;
-      padding-bottom: 8px;
-      gap: 20px; /* space between columns */
-    }
-    .tx-action { 
-      flex: 2; /* take up more space */
-      min-width: 250px; /* optional for long actions */
-    }
-    .tx-date { 
-      flex: 1; /* fixed width for alignment */
-      min-width: 100px;
-      font-size: 12px; 
-      color: #aaa; 
-    }
-    .tx-status { 
-      flex: 1; 
-      font-size: 12px; 
-      color: #22c55e; 
-      font-weight: bold;
-      text-align: right; /* keep status on the right */
-    }
+/* Set full app background */
+.stApp {
+    background-color: #000;
+    color: #fff;
+}
+
+.reward-page {
+  min-height: 100vh;
+  background-color: #000;
+  color: #fff;
+  padding: 24px;
+  font-family: Arial, sans-serif;
+  margin-top: -1500px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap; /* wrap on small screens */
+}
+
+.header h1.title {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.title {
+  color: #ec4899;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.balance-card {
+  background: linear-gradient(to right, #ec4899, #8b5cf6);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* allow wrapping on small screens */
+  gap: 16px;
+}
+
+.small-text { font-size: 14px; }
+.large-text { font-size: 32px; font-weight: bold; }
+.balance-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-light { background: #fff; color: #000; }
+.btn-dark { background: #000; border: 1px solid #fff; color: #fff; }
+.btn-pink { background: #ec4899; color: #fff; width: 100%; }
+
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* smaller min width for mobile */
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.reward-card {
+  background-color: #0f0f1f;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.reward-icon { font-size: 40px; margin-bottom: 12px; }
+.reward-title { font-size: 18px; font-weight: bold; }
+.reward-cost { color: #aaa; margin-bottom: 12px; }
+
+.transactions {
+  background-color: #0f0f1f;
+  padding: 20px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-x: auto; /* allow horizontal scroll on small screens */
+  margin-bottom: 50px;
+}
+
+.transaction {
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 1px solid #333;
+  padding-bottom: 8px;
+  gap: 20px;
+  flex-wrap: wrap; /* wrap on smaller screens */
+}
+
+.tx-action { 
+  flex: 2; 
+  min-width: 150px; 
+}
+
+.tx-date { 
+  flex: 1; 
+  min-width: 100px;
+  font-size: 12px; 
+  color: #aaa; 
+}
+
+.tx-status { 
+  flex: 1; 
+  min-width: 80px;
+  font-size: 12px; 
+  color: #22c55e; 
+  font-weight: bold;
+  text-align: right; 
+}
+
+/* Responsive adjustments for very small screens */
+@media screen and (max-width: 480px) {
+    .large-text { font-size: 24px; }
+    .title { font-size: 20px; }
+    .reward-card { padding: 16px; }
+    .balance-card { flex-direction: column; align-items: flex-start; }
+    .balance-buttons { width: 100%; justify-content: space-between; }
+}
+
     </style>
     """,
     unsafe_allow_html=True
@@ -183,10 +216,6 @@ st.markdown(
         <p class="small-text">Available Balance</p>
         <h2 class="large-text">${total_points}</h2>
       </div>
-      <div class="balance-buttons">
-        <button class="btn btn-light">Withdraw</button>
-        <button class="btn btn-dark">Redeem Gifts</button>
-      </div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -203,7 +232,7 @@ for r in rewards:
         f'<span class="reward-icon">{r["icon"]}</span>'
         f'<h3 class="reward-title">{r["title"]}</h3>'
         f'<p class="reward-cost">{r["cost"]}</p>'
-        '<button class="btn btn-pink">Redeem Now</button>'
+        '<button class="btn btn-pink">Redeem</button>'
         '</div>'
     )
 grid_html += '</div>'
