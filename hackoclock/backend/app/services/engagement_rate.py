@@ -11,7 +11,7 @@ supabase: Client = create_client(url, key)
 # Fetch relevant columns where sentiment is not null
 response = supabase.table("videos")\
     .select("*")\
-    .filter("sentiment","not.is", None)\
+    .filter("sentiment","not.is", "null")\
     .execute()
 
 rows = response.data
@@ -27,5 +27,5 @@ for row in rows:
 for row in rows:
     supabase.table("videos")\
         .update({"engagement_rate": row["engagement_rate"]})\
-        .eq("id", row["id"])\
+        .eq("video_id", row["video_id"])\
         .execute()
