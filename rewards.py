@@ -1,4 +1,24 @@
+import os
 import streamlit as st
+from supabase import create_client, Client
+from dotenv import load_dotenv
+
+# --- LOAD ENV VARIABLES ---
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+# --- INIT SUPABASE CLIENT ---
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# --- FETCH CREATOR POINTS ---
+creator_id = 731557
+response = supabase.table("creators").select("total_points").eq("creator_id", creator_id).execute()
+
+if response.data and len(response.data) > 0:
+    total_points = response.data[0]["total_points"]
+else:
+    total_points = 0  # fallback if no record found
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Creator Rewards", layout="wide")
@@ -20,12 +40,32 @@ transactions = [
 st.markdown(
     """
     <style>
+    /* Hide Streamlit menu, header, and footer */
+    header, footer, #MainMenu { 
+        visibility: hidden; 
+        height: 0px; 
+    }
+
+    /* Remove top padding of main content */
+    .block-container {
+        padding-top: 0rem;
+        padding-bottom: 0rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    /* Set full app background */
+    .stApp {
+        background-color: #000;
+        color: #fff;
+    }
     .reward-page {
       min-height: 100vh;
       background-color: #000;
       color: #fff;
       padding: 24px;
       font-family: Arial, sans-serif;
+      margin-top: -1000px;
     }
     .header {
       display: flex;
@@ -95,12 +135,28 @@ st.markdown(
     }
     .transaction {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start; /* align items to the left */
       border-bottom: 1px solid #333;
       padding-bottom: 8px;
+      gap: 20px; /* space between columns */
     }
-    .tx-date { font-size: 12px; color: #aaa; }
-    .tx-status { font-size: 12px; color: #22c55e; }
+    .tx-action { 
+      flex: 2; /* take up more space */
+      min-width: 250px; /* optional for long actions */
+    }
+    .tx-date { 
+      flex: 1; /* fixed width for alignment */
+      min-width: 100px;
+      font-size: 12px; 
+      color: #aaa; 
+    }
+    .tx-status { 
+      flex: 1; 
+      font-size: 12px; 
+      color: #22c55e; 
+      font-weight: bold;
+      text-align: right; /* keep status on the right */
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -111,12 +167,9 @@ st.markdown('<div class="reward-page">', unsafe_allow_html=True)
 
 # Header
 st.markdown(
-    """
+    f"""
     <div class="header">
         <h1 class="title">Creator Rewards</h1>
-        <div class="profile">
-            <span>Balance: <strong>$520</strong></span>
-        </div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -124,11 +177,11 @@ st.markdown(
 
 # Balance card
 st.markdown(
-    """
+    f"""
     <div class="balance-card">
       <div class="balance-info">
         <p class="small-text">Available Balance</p>
-        <h2 class="large-text">$520</h2>
+        <h2 class="large-text">${total_points}</h2>
       </div>
       <div class="balance-buttons">
         <button class="btn btn-light">Withdraw</button>
@@ -141,35 +194,49 @@ st.markdown(
 
 # Rewards
 st.markdown('<h2 class="section-title">Gifts to Redeem</h2>', unsafe_allow_html=True)
-st.markdown('<div class="rewards-grid">', unsafe_allow_html=True)
+
+# Build grid HTML
+grid_html = '<div class="rewards-grid">'
 for r in rewards:
-    st.markdown(
-        f"""
-        <div class="reward-card">
-            <span class="reward-icon">{r["icon"]}</span>
-            <h3 class="reward-title">{r["title"]}</h3>
-            <p class="reward-cost">{r["cost"]}</p>
-            <button class="btn btn-pink">Redeem Now</button>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    grid_html += (
+        '<div class="reward-card">'
+        f'<span class="reward-icon">{r["icon"]}</span>'
+        f'<h3 class="reward-title">{r["title"]}</h3>'
+        f'<p class="reward-cost">{r["cost"]}</p>'
+        '<button class="btn btn-pink">Redeem Now</button>'
+        '</div>'
     )
-st.markdown('</div>', unsafe_allow_html=True)
+grid_html += '</div>'
+
+# Render the grid
+st.markdown(grid_html, unsafe_allow_html=True)
+
+
 
 # Transactions
 st.markdown('<h2 class="section-title">Transaction History</h2>', unsafe_allow_html=True)
-st.markdown('<div class="transactions">', unsafe_allow_html=True)
+
+# Build transaction HTML
+tx_html = '<div class="transactions">'
 for tx in transactions:
-    st.markdown(
-        f"""
-        <div class="transaction">
-            <span>{tx["action"]}</span>
-            <span class="tx-date">{tx["date"]}</span>
-            <span class="tx-status">{tx["status"]}</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    # Determine status color
+    status_color = "#22c55e"  # green for completed
+    if tx["status"].lower() == "pending":
+        status_color = "#f59e0b"  # orange
+    elif tx["status"].lower() == "failed":
+        status_color = "#ef4444"  # red
+
+    tx_html += (
+        '<div class="transaction">'
+        f'<span class="tx-action">{tx["action"]}</span>'
+        f'<span class="tx-date">{tx["date"]}</span>'
+        f'<span class="tx-status" style="color: {status_color}; font-weight: bold;">{tx["status"]}</span>'
+        '</div>'
     )
-st.markdown('</div>', unsafe_allow_html=True)
+tx_html += '</div>'
+
+# Render transactions
+st.markdown(tx_html, unsafe_allow_html=True)
+
 
 st.markdown('</div>', unsafe_allow_html=True)  # close reward-page
