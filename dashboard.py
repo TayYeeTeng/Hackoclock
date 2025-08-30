@@ -1,18 +1,41 @@
 # tiktok_reward_dashboard.py
 import streamlit as st
 import pandas as pd
+from supabase import create_client, Client
+import os
+from dotenv import load_dotenv
 
 # -------------------------------
-# Mock Video Data (TikTok Metrics)
+# Load Environment Variables
 # -------------------------------
-videos = pd.DataFrame([
-    {"title": "Funny Cats Compilation", "views": 120_000, "likes": 55_000, "shares": 120, 
-     "watch_time": 800, "comments": 150, "gifts": 20, "creator_age": 22, "ip": "192.168.1.1"},
-    {"title": "Live Cooking Show", "views": 450_000, "likes": 120_000, "shares": 600, 
-     "watch_time": 3500, "comments": 2000, "gifts": 150, "creator_age": 17, "ip": "192.168.1.2"},
-    {"title": "Travel Vlog", "views": 520_000, "likes": 250_000, "shares": 1500, 
-     "watch_time": 5000, "comments": 6000, "gifts": 1000, "creator_age": 25, "ip": "192.168.1.3"}
-])
+load_dotenv()  # Load .env file in local dev
+
+url: str = os.getenv("SUPABASE_URL")
+key: str = os.getenv("SUPABASE_KEY")
+
+if not url or not key:
+    st.error("Supabase credentials not found. Please check your .env file.")
+    st.stop()
+
+supabase: Client = create_client(url, key)
+
+# -------------------------------
+# Fetch Videos + Creators
+# -------------------------------
+def fetch_videos():
+    response = supabase.table("videos").select(
+        "id, title, views, likes, shares, watch_time, comments, gifts, "
+        "streamers(age, ip_address)"
+    ).execute()
+    if response.data:
+        return pd.DataFrame(response.data)
+    return pd.DataFrame([])
+
+videos = fetch_videos()
+
+if videos.empty:
+    st.error("No video data found in Supabase.")
+    st.stop()
 
 # -------------------------------
 # Helper Functions
@@ -44,7 +67,7 @@ def calculate_credits(video):
     elif 500 <= s < 1000: credits["shares"] = 4
     elif s >= 1000: credits["shares"] = 5
     
-    # Watch Time (Retention)
+    # Watch Time
     r = video["watch_time"]
     if 20 <= r < 100: credits["retention"] = 1
     elif 100 <= r < 300: credits["retention"] = 2
@@ -52,7 +75,7 @@ def calculate_credits(video):
     elif 1000 <= r < 5000: credits["retention"] = 4
     elif r >= 5000: credits["retention"] = 5
     
-    # Comments (positive unique)
+    # Comments
     c = video["comments"]
     if 20 <= c < 100: credits["comments"] = 1
     elif 100 <= c < 300: credits["comments"] = 2
@@ -83,17 +106,16 @@ def reward_tier(total_credits):
 
 def check_fraud(video):
     alerts = []
-    # Age threshold
-    if video["creator_age"] < 18:
+    streamer = video.get("streamers") or {}
+    age = streamer.get("age")
+    ip = streamer.get("ip_address")
+
+    if age and age < 18:
         alerts.append("Below age threshold")
-    # Gifts spike
     if video["gifts"] > 500:
         alerts.append("High gift spike")
-    # Bot-like patterns
     if video["views"] > 1000 and video["comments"] == 0:
         alerts.append("Bot-like engagement")
-    # Multiple accounts could be flagged if IP repeats
-    # For simplicity, not implemented here
     return ", ".join(alerts) if alerts else "None"
 
 # Apply functions
@@ -107,7 +129,7 @@ videos["fraud_alert"] = videos.apply(check_fraud, axis=1)
 st.set_page_config(page_title="TikTok Reward Dashboard", layout="wide")
 st.title("TikTok Creator Reward Dashboard")
 
-# Custom CSS for TikTok style
+# TikTok Styling
 st.markdown("""
 <style>
 body { background-color: #010101; color: white; }
@@ -143,7 +165,6 @@ if tab_selected == "overview":
         st.write(f"{row['title']}: +{row['credits']['bonus']} bonus points")
     
     st.subheader("Targets & Progress")
-    # Mock progress bars
     st.write("Views Target")
     st.progress(min(videos["views"].sum()/1_500_000,1.0))
     st.write("Gifts Target")
