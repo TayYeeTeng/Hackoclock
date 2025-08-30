@@ -37,10 +37,6 @@ async def get_videos(videos):
                     url=url
                 )
 
-                # async for related_video in video.related_videos(count=10):
-                #     print(related_video)
-                #     print(related_video.as_dict)
-
                 # Fetch stats
                 video_info = await video.info()  # is HTML request, so avoid using this too much
                 stats = video_info['stats']
