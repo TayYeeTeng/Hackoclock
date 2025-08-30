@@ -49,4 +49,20 @@ for _, row in df.iterrows():
        .eq("video_id", row["video_id"])\
        .execute()
 
+#Update total_points 
+videos_response = supabase.table("videos")\
+    .select("*")\
+    .filter("sentiment","not.is", "null")\
+    .execute()
+
+videos = videos_response.data
+df_videos = pd.DataFrame(videos)
+creator_agg = df_videos.groupby("creator_id")["video_points"].sum().reset_index()
+creator_agg.rename(columns={"video_points": "total_video_points"}, inplace=True)
+
+for _, row in creator_agg.iterrows():
+    supabase.table("creators")\
+        .update({"total_points": float(row["total_video_points"])})\
+        .eq("creator_id", row["creator_id"])\
+        .execute()
 
