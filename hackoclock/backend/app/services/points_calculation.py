@@ -42,12 +42,11 @@ scaled_cols = [col+"_scaled" for col in cols]
 # Sum across the Z-score columns row-wise
 df["video_points"] = df[scaled_cols].sum(axis=1)
 
-print(df["video_points"]) #for checking
 
-#for _, row in df.iterrows():
-#    supabase.table("videos")\
-#        .update({"video_points": float(row["video_points"])})\
-#        .eq("video_id", row["video_id"])\
-#        .execute()
+for _, row in df.iterrows():
+   supabase.table("videos")\
+       .update({"video_points": round(float(row["video_points"])*200)})\
+       .eq("video_id", row["video_id"])\
+       .execute()
 
 
