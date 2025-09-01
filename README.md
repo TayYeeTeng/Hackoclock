@@ -52,5 +52,23 @@ Stores the log of rewards redemption by creators
 - Using Z-score and scaling, the video_points is calculated by summing the z-scores of 7 fields: views, likes, shares, bookmarks, engagement_rate, comments & sentiment
 - The points are then scaled to match the shop table requirements connected to the main webpage UI, encouraging content creators to make videos of better quality and of appropriate content.
 
+# 5.  Media
+
+## Creators Reward Shop
+
+<p align="center">
+  <img src=".github/CreatorsRewardShop_Wide.png" alt="Creators Reward Shop Web View screenshot" width="400px" />
+  <img src=".github/CreatorsRewardShop2_Wide.png" alt="Creators Reward Shop Web View screenshot" width="400px" />
+  <img src=".github/CreatorsRewardShop_Mobile.png" alt="Creators Reward Shop Mobile View screenshot" width="400px" />
+  <img src=".github/CreatorsRewardShop2_Mobile.png" alt="Creators Reward Shop Mobile View screenshot" width="400px" />
+</p>
+
+## Creator Dashboard
+
+<p align="center">
+  <img src=".github/CreatorDashboard.png" alt="Creator Dashboard Web View screenshot" width="400px" />
+  <img src=".github/CreatorDashboard2.png" alt="Creator Dashboard Web View screenshot" width="400px" />
+</p>
+
 
 
