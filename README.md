@@ -57,10 +57,12 @@ Stores the log of rewards redemption by creators
 ## Creators Reward Shop
 
 <p align="center">
-  <img src=".github/CreatorsRewardShop_Wide.png" alt="Creators Reward Shop Web View screenshot" width="400px" />
-  <img src=".github/CreatorsRewardShop2_Wide.png" alt="Creators Reward Shop Web View screenshot" width="400px" />
-  <img src=".github/CreatorsRewardShop_Mobile.png" alt="Creators Reward Shop Mobile View screenshot" width="400px" />
-  <img src=".github/CreatorsRewardShop2_Mobile.png" alt="Creators Reward Shop Mobile View screenshot" width="400px" />
+  <img src=".github/CreatorRewardsShop_Wide.png" alt="Creator Rewards Shop Web View screenshot" width="400px" />
+  <img src=".github/CreatorRewardsShop2_Wide.png" alt="Creator Rewards Shop Web View screenshot" width="400px" />
+</p>
+<p align="center">
+  <img src=".github/CreatorRewardsShop_Mobile.png" alt="Creator Rewards Shop Mobile View screenshot" width="200px" />
+  <img src=".github/CreatorRewardsShop2_Mobile.png" alt="Creator Rewards Shop Mobile View screenshot" width="200px" />
 </p>
 
 ## Creator Dashboard
